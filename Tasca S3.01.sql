@@ -17,6 +17,14 @@ CREATE TABLE IF NOT EXISTS credit_card (
 		expiring_date text(8),
         FOREIGN KEY(id) REFERENCES transaction(credit_card_id)        
     );
+
+ALTER TABLE credit_card
+DROP CONSTRAINT credit_card_ibfk_1;
+
+ALTER TABLE Pedidos
+ADD CONSTRAINT fk_pedidos_clientes
+FOREIGN KEY (id_cliente) REFERENCES Clientes(id_cliente);
+
    
 -- Mediante la función Database/Reverse Engineer obtenemos el diagrama con el esquema de las tablas
 -- Las nuevas tablas se relacionan con la tabla Transaction mediante los campos user_id y credit_card_id
@@ -138,6 +146,7 @@ comandos executats per a obtenir el següent diagrama:
 En aquesta activitat, és necessari que descriguis el "pas a pas" de les tasques realitzades. 
 És important realitzar descripcions senzilles, simples i fàcils de comprendre. 
 Per a realitzar aquesta activitat hauràs de treballar amb els arxius denominats "estructura_dades_user" i "dades_introduir_user" */
+
 ALTER TABLE company
 DROP COLUMN website;
 
@@ -162,6 +171,64 @@ MODIFY COLUMN expiring_date VARCHAR(20);
 ALTER TABLE credit_card
 ADD COLUMN fecha_actual DATE;
 
+ALTER TABLE credit_card
+DROP CONSTRAINT credit_card_ibfk_1;
+
+SELECT credit_card_id
+FROM transaction
+WHERE credit_card_id NOT IN (SELECT id FROM credit_card);
+
+INSERT INTO credit_card (
+		Id,
+        iban,
+        pin,
+        cvv,
+        expiring_date,
+        fecha_actual)
+VALUES ('CcU-9999',
+		'L323456312213576817699998',
+        '1825',
+        123,
+		'21/01/2025',
+        '2025-01-21');
+
+ALTER TABLE transaction
+ADD CONSTRAINT fk_credit_card
+FOREIGN KEY (credit_card_id) REFERENCES credit_card(id);
+        
+ALTER TABLE data_user
+DROP CONSTRAINT data_user_ibfk_1;
+
+SELECT user_id
+FROM transaction
+WHERE user_id NOT IN (SELECT id FROM data_user);
+
+INSERT INTO data_user (
+		Id,
+        name,
+        surname,
+        phone,
+        personal_email,
+        birth_date,
+        country,
+        city,
+        postal_code,
+        address)
+VALUES (9999,
+		'Lucas',
+        'Munoz',
+        '938943966',
+		'lucasm@gmail.com',
+        'Mar 9, 1971',
+        'Spain',
+        'Barcelona',
+        '08870',
+        'Pz Dr Robert 6');
+
+ALTER TABLE transaction
+ADD CONSTRAINT fk_user
+FOREIGN KEY (user_id) REFERENCES data_user(id);
+
 /* Exercici 2
 L'empresa també et sol·licita crear una vista anomenada "InformeTecnico" que contingui la següent informació:
 ID de la transacció
@@ -173,11 +240,11 @@ Assegura't d'incloure informació rellevant de totes dues taules i utilitza àli
 Mostra els resultats de la vista, ordena els resultats de manera descendent en funció de la variable ID de transaction.*/
 CREATE OR REPLACE VIEW InformeTecnico AS
 SELECT 
-	t.id as "ID transacción",
-	u.name as "Nombre usuario/a",
-	u.surname as "Apellido usuario/a",
-	cr.iban as "IBAN tarjeta crédito usada",
-	co.company_name as "Nombre compañía"
+	t.id as ID_transaccion,
+	u.name as Nombre_usuario,
+	u.surname as Apellido_usuario,
+	cr.iban as IBAN_tarjeta_credito_usada,
+	co.company_name as Nombre_companyia
 FROM transaction t
 LEFT JOIN user u
 		  ON u.id = t.user_id
