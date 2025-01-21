@@ -246,7 +246,7 @@ SELECT
 	cr.iban as IBAN_tarjeta_credito_usada,
 	co.company_name as Nombre_companyia
 FROM transaction t
-LEFT JOIN user u
+LEFT JOIN data_user u
 		  ON u.id = t.user_id
 LEFT JOIN credit_card cr
 		  ON cr.id = t.credit_card_id
